@@ -1,0 +1,13 @@
+[package]
+name = "braillefb"
+version = "0.1.0"
+edition = "2021"
+authors = ["Odin Dutton <odindutton@gmail.com>"]
+description = "A framebuffer that takes a `&[bool]` slice and returns 2x4 \"dot\" (pixel) braille `char`s"
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/twe4ked/braillefb"
+readme = "README.md"
+keywords = ["framebuffer", "braille", "terminal"]
+categories = ["command-line-interface"]
+
+[dependencies]
