@@ -86,7 +86,7 @@ impl<'a> Framebuffer<'a> {
         assert_eq!(
             framebuffer.len(),
             width * height,
-            "supplied vec does not match width * height"
+            "supplied slice does not match width * height"
         );
 
         let x_chars_count = (round_up(width, CHAR_WIDTH) / CHAR_WIDTH) + 1; // + 1 for linebreaks
