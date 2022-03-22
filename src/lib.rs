@@ -341,10 +341,9 @@ mod tests {
             . .
         ];
         let f = Framebuffer::new(&framebuffer, 2, 4);
-        let mut f = f.into_iter();
-        assert_eq!(Some('⠓'), f.next());
-        assert_eq!(Some('\n'), f.next());
-        assert_eq!(None, f.next());
+        assert_eq!(Some('⠓'), f.get(0));
+        assert_eq!(Some('\n'), f.get(1));
+        assert_eq!(None, f.get(2));
 
         let framebuffer = framebuffer![
             # .
@@ -353,10 +352,9 @@ mod tests {
             # #
         ];
         let f = Framebuffer::new(&framebuffer, 2, 4);
-        let mut f = f.into_iter();
-        assert_eq!(Some('⣇'), f.next());
-        assert_eq!(Some('\n'), f.next());
-        assert_eq!(None, f.next());
+        assert_eq!(Some('⣇'), f.get(0));
+        assert_eq!(Some('\n'), f.get(1));
+        assert_eq!(None, f.get(2));
     }
 
     #[test]
@@ -374,13 +372,12 @@ mod tests {
             # . # .
         ];
         let f = Framebuffer::new(&framebuffer, 4, 8);
-        let mut f = f.into_iter();
 
-        assert_eq!(Some('⣇'), f.next());
-        assert_eq!(Some('⠽'), f.next());
-        assert_eq!(Some('\n'), f.next());
-        assert_eq!(Some('⡛'), f.next());
-        assert_eq!(Some('⡼'), f.next());
+        assert_eq!(Some('⣇'), f.get(0));
+        assert_eq!(Some('⠽'), f.get(1));
+        assert_eq!(Some('\n'), f.get(2));
+        assert_eq!(Some('⡛'), f.get(3));
+        assert_eq!(Some('⡼'), f.get(4));
     }
 
     #[test]
@@ -435,14 +432,14 @@ mod tests {
             # # #
         ];
         let f = Framebuffer::new(&framebuffer, 3, 5);
-        let mut f = f.into_iter();
 
-        assert_eq!(Some('⠇'), f.next());
-        assert_eq!(Some('⠅'), f.next());
-        assert_eq!(Some('\n'), f.next());
+        assert_eq!(Some('⠇'), f.get(0));
+        assert_eq!(Some('⠅'), f.get(1));
+        assert_eq!(Some('\n'), f.get(2));
 
-        assert_eq!(Some('⠉'), f.next());
-        assert_eq!(Some('⠁'), f.next());
+        assert_eq!(Some('⠉'), f.get(3));
+        assert_eq!(Some('⠁'), f.get(4));
+        assert_eq!(Some('\n'), f.get(5));
     }
 
     #[test]
