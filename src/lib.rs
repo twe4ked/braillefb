@@ -24,6 +24,8 @@
 //! assert_eq!("⣇⠽\n", &output);
 //! ```
 
+use std::fmt;
+
 // https://en.wikipedia.org/wiki/Braille_Patterns
 //
 // 1 4
@@ -161,6 +163,15 @@ impl<'a> Framebuffer<'a> {
         let x_offset = cols * CHAR_WIDTH;
 
         Offsets::Char(x_offset, y_offset)
+    }
+}
+
+impl fmt::Display for Framebuffer<'_> {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        for c in self {
+            write!(f, "{}", c)?;
+        }
+        Ok(())
     }
 }
 
