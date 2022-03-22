@@ -139,6 +139,58 @@ impl<'a> Framebuffer<'a> {
         }
     }
 
+    /// Returns the number of braille `chars` across the image including a trailing linebreak.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # use braillefb::Framebuffer;
+    /// # let framebuffer = vec![
+    /// #     true, false, true, true,
+    /// #     true, false, false, true,
+    /// #     true, false, true, true,
+    /// #     true, true, false, false,
+    /// #     true, true, false, true,
+    /// #     true, true, false, true,
+    /// #     false, false, true, true,
+    /// #     true, false, true, false,
+    /// # ];
+    /// // ⣇⠽
+    /// // ⡛⡼
+    /// let f = Framebuffer::new(&framebuffer, 4, 8);
+    /// assert_eq!("⣇⠽\n⡛⡼\n", &f.to_string());
+    /// assert_eq!(3, f.x_chars_count());
+    /// ```
+    pub fn x_chars_count(&self) -> usize {
+        self.x_chars_count
+    }
+
+    /// Returns the number of braille `chars` down the image.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # use braillefb::Framebuffer;
+    /// # let framebuffer = vec![
+    /// #     true, false, true, true,
+    /// #     true, false, false, true,
+    /// #     true, false, true, true,
+    /// #     true, true, false, false,
+    /// #     true, true, false, true,
+    /// #     true, true, false, true,
+    /// #     false, false, true, true,
+    /// #     true, false, true, false,
+    /// # ];
+    /// // ⣇⠽
+    /// // ⡛⡼
+    /// let f = Framebuffer::new(&framebuffer, 4, 8);
+    /// assert_eq!("⣇⠽\n⡛⡼\n", &f.to_string());
+    /// assert_eq!(2, f.y_chars_count());
+    /// ```
+    pub fn y_chars_count(&self) -> usize {
+        self.y_chars_count
+    }
+
     /// The number of `char`s (including linebreaks) that can be returned.
     pub fn len(&self) -> usize {
         self.y_chars_count * self.x_chars_count
