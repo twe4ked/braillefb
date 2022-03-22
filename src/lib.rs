@@ -477,64 +477,32 @@ mod tests {
         // # # # #
         // # # # #
         // 8 \n
+        fn test(f: Framebuffer) {
+            // Row 1
+            assert_eq!(Offsets::Char(0, 0), f.offsets(0));
+            assert_eq!(Offsets::Char(2, 0), f.offsets(1));
+            assert_eq!(Offsets::Linebreak, f.offsets(2));
+
+            // Row 2
+            assert_eq!(Offsets::Char(0, 4), f.offsets(3));
+            assert_eq!(Offsets::Char(2, 4), f.offsets(4));
+            assert_eq!(Offsets::Linebreak, f.offsets(5));
+
+            // Row 3
+            assert_eq!(Offsets::Char(0, 8), f.offsets(6));
+            assert_eq!(Offsets::Char(2, 8), f.offsets(7));
+            assert_eq!(Offsets::Linebreak, f.offsets(8));
+
+            assert_eq!(Offsets::End, f.offsets(9));
+        }
+
         let framebuffer = vec![false; 4 * 12];
         let f = Framebuffer::new(&framebuffer, 4, 12);
-
-        // Row 1
-        assert_eq!(Offsets::Char(0, 0), f.offsets(0));
-        assert_eq!(Offsets::Char(2, 0), f.offsets(1));
-        assert_eq!(Offsets::Linebreak, f.offsets(2));
-
-        // Row 2
-        assert_eq!(Offsets::Char(0, 4), f.offsets(3));
-        assert_eq!(Offsets::Char(2, 4), f.offsets(4));
-        assert_eq!(Offsets::Linebreak, f.offsets(5));
-
-        // Row 3
-        assert_eq!(Offsets::Char(0, 8), f.offsets(6));
-        assert_eq!(Offsets::Char(2, 8), f.offsets(7));
-        assert_eq!(Offsets::Linebreak, f.offsets(8));
-
-        assert_eq!(Offsets::End, f.offsets(9));
-    }
-
-    #[test]
-    fn offsets_with_padding() {
-        // 0 # 1 #
-        // # # # #
-        // # # # #
-        // # # # #
-        // 2 \n
-        // 3 # 4 #
-        // # # # #
-        // # # # #
-        // # # # #
-        // 5 \n
-        // 6 # 7 #
-        // # # # #
-        // # # # #
-        // # # # #
-        // 8 \n
+        test(f);
 
         // Width - 1 and height - 1 here to test offsets work when they need padding
         let framebuffer = vec![false; 3 * 11];
         let f = Framebuffer::new(&framebuffer, 3, 11);
-
-        // Row 1
-        assert_eq!(Offsets::Char(0, 0), f.offsets(0));
-        assert_eq!(Offsets::Char(2, 0), f.offsets(1));
-        assert_eq!(Offsets::Linebreak, f.offsets(2));
-
-        // Row 2
-        assert_eq!(Offsets::Char(0, 4), f.offsets(3));
-        assert_eq!(Offsets::Char(2, 4), f.offsets(4));
-        assert_eq!(Offsets::Linebreak, f.offsets(5));
-
-        // Row 3
-        assert_eq!(Offsets::Char(0, 8), f.offsets(6));
-        assert_eq!(Offsets::Char(2, 8), f.offsets(7));
-        assert_eq!(Offsets::Linebreak, f.offsets(8));
-
-        assert_eq!(Offsets::End, f.offsets(9));
+        test(f);
     }
 }
