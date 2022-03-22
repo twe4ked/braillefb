@@ -18,6 +18,7 @@
 //!
 //! // Get individual braille `char`s
 //! assert_eq!(Some('⣇'), f.get(0));
+//! assert_eq!('⠽', f[1]);
 //!
 //! // As an iterator
 //! let output: String = f.into_iter().collect();
@@ -25,6 +26,7 @@
 //! ```
 
 use std::fmt;
+use std::ops::Index;
 
 // https://en.wikipedia.org/wiki/Braille_Patterns
 //
@@ -44,6 +46,24 @@ const BIT_OFFSETS: [(usize, usize); 8] = [
 ];
 const CHAR_WIDTH: usize = 2;
 const CHAR_HEIGHT: usize = 4;
+
+// Hardcode the list a `char`s so we can return static references from the `Index` impl
+const CHARS: [char; 256] = [
+    '⠀', '⠁', '⠂', '⠃', '⠄', '⠅', '⠆', '⠇', '⠈', '⠉', '⠊', '⠋', '⠌', '⠍', '⠎', '⠏', '⠐', '⠑', '⠒',
+    '⠓', '⠔', '⠕', '⠖', '⠗', '⠘', '⠙', '⠚', '⠛', '⠜', '⠝', '⠞', '⠟', '⠠', '⠡', '⠢', '⠣', '⠤', '⠥',
+    '⠦', '⠧', '⠨', '⠩', '⠪', '⠫', '⠬', '⠭', '⠮', '⠯', '⠰', '⠱', '⠲', '⠳', '⠴', '⠵', '⠶', '⠷', '⠸',
+    '⠹', '⠺', '⠻', '⠼', '⠽', '⠾', '⠿', '⡀', '⡁', '⡂', '⡃', '⡄', '⡅', '⡆', '⡇', '⡈', '⡉', '⡊', '⡋',
+    '⡌', '⡍', '⡎', '⡏', '⡐', '⡑', '⡒', '⡓', '⡔', '⡕', '⡖', '⡗', '⡘', '⡙', '⡚', '⡛', '⡜', '⡝', '⡞',
+    '⡟', '⡠', '⡡', '⡢', '⡣', '⡤', '⡥', '⡦', '⡧', '⡨', '⡩', '⡪', '⡫', '⡬', '⡭', '⡮', '⡯', '⡰', '⡱',
+    '⡲', '⡳', '⡴', '⡵', '⡶', '⡷', '⡸', '⡹', '⡺', '⡻', '⡼', '⡽', '⡾', '⡿', '⢀', '⢁', '⢂', '⢃', '⢄',
+    '⢅', '⢆', '⢇', '⢈', '⢉', '⢊', '⢋', '⢌', '⢍', '⢎', '⢏', '⢐', '⢑', '⢒', '⢓', '⢔', '⢕', '⢖', '⢗',
+    '⢘', '⢙', '⢚', '⢛', '⢜', '⢝', '⢞', '⢟', '⢠', '⢡', '⢢', '⢣', '⢤', '⢥', '⢦', '⢧', '⢨', '⢩', '⢪',
+    '⢫', '⢬', '⢭', '⢮', '⢯', '⢰', '⢱', '⢲', '⢳', '⢴', '⢵', '⢶', '⢷', '⢸', '⢹', '⢺', '⢻', '⢼', '⢽',
+    '⢾', '⢿', '⣀', '⣁', '⣂', '⣃', '⣄', '⣅', '⣆', '⣇', '⣈', '⣉', '⣊', '⣋', '⣌', '⣍', '⣎', '⣏', '⣐',
+    '⣑', '⣒', '⣓', '⣔', '⣕', '⣖', '⣗', '⣘', '⣙', '⣚', '⣛', '⣜', '⣝', '⣞', '⣟', '⣠', '⣡', '⣢', '⣣',
+    '⣤', '⣥', '⣦', '⣧', '⣨', '⣩', '⣪', '⣫', '⣬', '⣭', '⣮', '⣯', '⣰', '⣱', '⣲', '⣳', '⣴', '⣵', '⣶',
+    '⣷', '⣸', '⣹', '⣺', '⣻', '⣼', '⣽', '⣾', '⣿',
+];
 
 /// A framebuffer that takes a `&[bool]` slice and returns 2x4 "dot" (pixel) [braille `char`s][1].
 ///
@@ -126,6 +146,10 @@ impl<'a> Framebuffer<'a> {
     /// assert_eq!(None, f.get(3));
     /// ```
     pub fn get(&self, index: usize) -> Option<char> {
+        self.get_inner(index).copied()
+    }
+
+    fn get_inner(&self, index: usize) -> Option<&'static char> {
         match self.offsets(index) {
             Offsets::Char(x_offset, y_offset) => Some(get_char(
                 self.framebuffer,
@@ -134,7 +158,7 @@ impl<'a> Framebuffer<'a> {
                 self.width,
                 self.height,
             )),
-            Offsets::Linebreak => Some('\n'),
+            Offsets::Linebreak => Some(&'\n'),
             Offsets::End => None,
         }
     }
@@ -228,6 +252,15 @@ impl fmt::Display for Framebuffer<'_> {
     }
 }
 
+impl Index<usize> for Framebuffer<'_> {
+    type Output = char;
+
+    fn index(&self, index: usize) -> &Self::Output {
+        self.get_inner(index)
+            .unwrap_or_else(|| panic!("index out of bounds"))
+    }
+}
+
 impl<'a, 'f> IntoIterator for &'a Framebuffer<'f> {
     type Item = char;
     type IntoIter = Iter<'a, 'f>;
@@ -260,7 +293,7 @@ impl<'a, 'i> Iterator for Iter<'a, 'i> {
         match self.inner.offsets(self.index) {
             Offsets::Char(x_offset, y_offset) => {
                 self.index += 1;
-                Some(get_char(
+                Some(*get_char(
                     self.inner.framebuffer,
                     x_offset,
                     y_offset,
@@ -302,7 +335,7 @@ fn get_char(
     y_offset: usize,
     width: usize,
     height: usize,
-) -> char {
+) -> &'static char {
     let mut n: u8 = 0;
     for (x, y) in BIT_OFFSETS {
         n <<= 1;
@@ -313,11 +346,7 @@ fn get_char(
         }
         n |= framebuffer[xx + yy * width] as u8;
     }
-    to_braille(n)
-}
-
-fn to_braille(i: u8) -> char {
-    char::from_u32(0x2800 + i as u32).expect("0x2800 + any u8 is a valid UTF-8 char")
+    &CHARS[n as usize]
 }
 
 #[cfg(test)]
@@ -454,10 +483,10 @@ mod tests {
             # # #
         ];
 
-        assert_eq!('⠇', get_char(&framebuffer, 0, 0, 3, 5));
-        assert_eq!('⠅', get_char(&framebuffer, 2, 0, 3, 5));
-        assert_eq!('⠉', get_char(&framebuffer, 0, 4, 3, 5));
-        assert_eq!('⠁', get_char(&framebuffer, 2, 4, 3, 5));
+        assert_eq!(&'⠇', get_char(&framebuffer, 0, 0, 3, 5));
+        assert_eq!(&'⠅', get_char(&framebuffer, 2, 0, 3, 5));
+        assert_eq!(&'⠉', get_char(&framebuffer, 0, 4, 3, 5));
+        assert_eq!(&'⠁', get_char(&framebuffer, 2, 4, 3, 5));
     }
 
     #[test]
@@ -504,5 +533,13 @@ mod tests {
         let framebuffer = vec![false; 3 * 11];
         let f = Framebuffer::new(&framebuffer, 3, 11);
         test(f);
+    }
+
+    #[test]
+    fn chars() {
+        let chars = (0..256)
+            .map(|i| char::from_u32(0x2800 + i as u32).unwrap())
+            .collect::<Vec<_>>();
+        assert_eq!(super::CHARS, &chars[..]);
     }
 }
