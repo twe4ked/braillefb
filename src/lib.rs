@@ -70,6 +70,7 @@ const CHAR_HEIGHT: usize = 4;
 /// let output: String = f.into_iter().collect();
 /// assert_eq!("⣇⠽\n", &output);
 /// ```
+#[derive(Debug, Copy, Clone)]
 pub struct Framebuffer<'a> {
     framebuffer: &'a [bool],
     width: usize,
