@@ -256,8 +256,13 @@ impl Index<usize> for Framebuffer<'_> {
     type Output = char;
 
     fn index(&self, index: usize) -> &Self::Output {
-        self.get_inner(index)
-            .unwrap_or_else(|| panic!("index out of bounds"))
+        self.get_inner(index).unwrap_or_else(|| {
+            panic!(
+                "index out of bounds: the len is {} but the index is {}",
+                self.len(),
+                index
+            )
+        })
     }
 }
 
