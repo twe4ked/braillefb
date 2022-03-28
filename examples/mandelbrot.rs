@@ -10,6 +10,7 @@ fn main() {
     );
 }
 
+// https://en.wikipedia.org/wiki/Plotting_algorithms_for_the_Mandelbrot_set#Escape_time_algorithm
 pub fn mandelbrot(framebuffer: &mut [bool]) {
     let max = 64;
     for py in 0..HEIGHT {
