@@ -136,6 +136,10 @@ impl<'a> Framebuffer<'a> {
             "supplied slice does not match width * height"
         );
 
+        fn round_up(input: usize, multiple: usize) -> usize {
+            ((input + multiple - 1) / multiple) * multiple
+        }
+
         let x_chars_count = (round_up(width, CHAR_WIDTH) / CHAR_WIDTH) + 1; // + 1 for linebreaks
         let y_chars_count = round_up(height, CHAR_HEIGHT) / CHAR_HEIGHT;
 
@@ -342,10 +346,6 @@ impl<'a, 'i> Iterator for Iter<'a, 'i> {
         let size = self.inner.len();
         (size, Some(size))
     }
-}
-
-fn round_up(input: usize, multiple: usize) -> usize {
-    ((input + multiple - 1) / multiple) * multiple
 }
 
 // The x/y offsets are combined with the BIT_OFFSETS to create a u8 in the order that a
