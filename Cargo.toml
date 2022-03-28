@@ -1,6 +1,6 @@
 [package]
 name = "braillefb"
-version = "0.1.0"
+version = "0.2.0"
 edition = "2021"
 authors = ["Odin Dutton <odindutton@gmail.com>"]
 description = "A framebuffer that takes a `&[bool]` slice and returns 2x4 \"dot\" (pixel) braille `char`s"
