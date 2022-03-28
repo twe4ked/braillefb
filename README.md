@@ -39,7 +39,7 @@ let framebuffer = vec![
     true, true, false, false,
 ];
 
-let f = Framebuffer::new(&framebuffer, 4, 4);
+let f = braillefb::Framebuffer::new(&framebuffer, 4, 4);
 
 // Get individual braille `char`s
 assert_eq!(Some('⣇'), f.get(0));
@@ -48,6 +48,17 @@ assert_eq!('⠽', f[1]);
 // As an iterator
 let output: String = f.into_iter().collect();
 assert_eq!("⣇⠽\n", &output);
+
+// From `[bool; 8]`
+assert_eq!(
+    '⢗',
+    braillefb::to_char([
+        true, false,
+        true, true,
+        true, false,
+        false, true,
+    ])
+);
 ```
 
 License: MIT OR Apache-2.0
