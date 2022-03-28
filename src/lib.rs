@@ -348,6 +348,25 @@ impl<'a, 'i> Iterator for Iter<'a, 'i> {
     }
 }
 
+/// Converts a single 2x4 1-bit array into a braille `char`.
+///
+/// # Example
+///
+/// ```
+/// assert_eq!(
+///     '⢗',
+///     braillefb::to_char([
+///         true, false,
+///         true, true,
+///         true, false,
+///         false, true,
+///     ])
+/// );
+/// ```
+pub fn to_char(f: [bool; 8]) -> char {
+    *get_char(&f, 0, 0, CHAR_WIDTH, CHAR_HEIGHT)
+}
+
 // The x/y offsets are combined with the BIT_OFFSETS to create a u8 in the order that a
 // UTF-8 braille character is represented
 //
@@ -380,7 +399,7 @@ fn get_char(
 
 #[cfg(test)]
 mod tests {
-    use super::{get_char, Framebuffer, Offsets};
+    use super::{get_char, to_char, Framebuffer, Offsets};
 
     macro_rules! framebuffer {
         (#) => {true};
@@ -498,6 +517,18 @@ mod tests {
         assert_eq!(Some('⠉'), f.get(3));
         assert_eq!(Some('⠁'), f.get(4));
         assert_eq!(Some('\n'), f.get(5));
+    }
+
+    #[test]
+    fn test_to_char() {
+        // ⢗
+        let framebuffer = framebuffer![
+            # .
+            # #
+            # .
+            . #
+        ];
+        assert_eq!('⢗', to_char(framebuffer.try_into().unwrap()));
     }
 
     #[test]
