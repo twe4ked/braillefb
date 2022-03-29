@@ -1,4 +1,4 @@
-//! A framebuffer that takes a `&[bool]` slice and returns 2x4 "dot" (pixel) [braille `char`s][1].
+//! A framebuffer that takes a `&[T: Copy + Into<u8>]` slice and returns 2x4 "dot" (pixel) [braille `char`s][1].
 //!
 //! [1]: https://en.wikipedia.org/wiki/Braille_Patterns
 //!
@@ -99,7 +99,7 @@ const CHARS: [char; 256] = [
     '⣷', '⣸', '⣹', '⣺', '⣻', '⣼', '⣽', '⣾', '⣿',
 ];
 
-/// A framebuffer that takes a `&[bool]` slice and returns 2x4 "dot" (pixel) [braille `char`s][1].
+/// A framebuffer that takes a `&[T: Copy + Into<u8>]` slice and returns 2x4 "dot" (pixel) [braille `char`s][1].
 ///
 /// [1]: https://en.wikipedia.org/wiki/Braille_Patterns
 ///
@@ -125,21 +125,21 @@ const CHARS: [char; 256] = [
 /// assert_eq!("⣇⠽\n", &output);
 /// ```
 #[derive(Debug, Copy, Clone)]
-pub struct Framebuffer<'a> {
-    framebuffer: &'a [bool],
+pub struct Framebuffer<'a, T: Copy + Into<u8>> {
+    framebuffer: &'a [T],
     width: usize,
     height: usize,
     x_chars_count: usize,
     y_chars_count: usize,
 }
 
-impl<'a> Framebuffer<'a> {
+impl<'a, T: Copy + Into<u8>> Framebuffer<'a, T> {
     /// Create a Framebuffer instance.
     ///
     /// # Panics
     ///
     /// Panics if length of supplied `framebuffer` slice is not equal to `width * height`.
-    pub fn new(framebuffer: &'a [bool], width: usize, height: usize) -> Self {
+    pub fn new(framebuffer: &'a [T], width: usize, height: usize) -> Self {
         assert_eq!(
             framebuffer.len(),
             width * height,
@@ -281,7 +281,7 @@ impl<'a> Framebuffer<'a> {
     }
 }
 
-impl fmt::Display for Framebuffer<'_> {
+impl<T: Copy + Into<u8>> fmt::Display for Framebuffer<'_, T> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         for c in self {
             write!(f, "{}", c)?;
@@ -290,7 +290,7 @@ impl fmt::Display for Framebuffer<'_> {
     }
 }
 
-impl Index<usize> for Framebuffer<'_> {
+impl<T: Copy + Into<u8>> Index<usize> for Framebuffer<'_, T> {
     type Output = char;
 
     fn index(&self, index: usize) -> &Self::Output {
@@ -304,9 +304,9 @@ impl Index<usize> for Framebuffer<'_> {
     }
 }
 
-impl<'a, 'f> IntoIterator for &'a Framebuffer<'f> {
+impl<'a, 'f, T: Copy + Into<u8>> IntoIterator for &'a Framebuffer<'f, T> {
     type Item = char;
-    type IntoIter = Iter<'a, 'f>;
+    type IntoIter = Iter<'a, 'f, T>;
 
     fn into_iter(self) -> Self::IntoIter {
         Iter {
@@ -324,12 +324,12 @@ enum Offsets {
 }
 
 /// An iterator over braille `char`s.
-pub struct Iter<'a, 'i> {
-    inner: &'a Framebuffer<'i>,
+pub struct Iter<'a, 'i, T: Copy + Into<u8>> {
+    inner: &'a Framebuffer<'i, T>,
     index: usize,
 }
 
-impl<'a, 'i> Iterator for Iter<'a, 'i> {
+impl<'a, 'i, T: Copy + Into<u8>> Iterator for Iter<'a, 'i, T> {
     type Item = char;
 
     fn next(&mut self) -> Option<Self::Item> {
@@ -373,7 +373,7 @@ impl<'a, 'i> Iterator for Iter<'a, 'i> {
 ///     ])
 /// );
 /// ```
-pub fn to_char(f: [bool; 8]) -> char {
+pub fn to_char<T: Copy + Into<u8>>(f: [T; 8]) -> char {
     *get_char(&f, 0, 0, CHAR_WIDTH, CHAR_HEIGHT)
 }
 
@@ -387,8 +387,8 @@ pub fn to_char(f: [bool; 8]) -> char {
 //
 // 0b00000000
 //   12345678
-fn get_char(
-    framebuffer: &[bool],
+fn get_char<T: Copy + Into<u8>>(
+    framebuffer: &[T],
     x_offset: usize,
     y_offset: usize,
     width: usize,
@@ -402,7 +402,7 @@ fn get_char(
         if xx >= width || yy >= height {
             continue;
         }
-        n |= framebuffer[xx + yy * width] as u8;
+        n |= framebuffer[xx + yy * width].into();
     }
     &CHARS[n as usize]
 }
@@ -576,7 +576,7 @@ mod tests {
         // # # # #
         // # # # #
         // 8 \n
-        fn test(f: Framebuffer) {
+        fn test<T: Copy + Into<u8>>(f: Framebuffer<T>) {
             // Row 1
             assert_eq!(Offsets::Char(0, 0), f.offsets(0));
             assert_eq!(Offsets::Char(2, 0), f.offsets(1));
