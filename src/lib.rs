@@ -404,6 +404,14 @@ fn get_char(
         }
         n |= framebuffer[xx + yy * width] as u8;
     }
+
+    // TODO: Ideally we could replace the CHARS lookup with the following, but we can't return a
+    // static reference if we create the char
+    debug_assert_eq!(
+        char::from_u32(0x2800 + n as u32).expect("0x2800 + any u8 is a valid UTF-8 char"),
+        CHARS[n as usize]
+    );
+
     &CHARS[n as usize]
 }
 
